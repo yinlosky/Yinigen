@@ -16,7 +16,7 @@ cur_it = DB('cur_it');
 it = str2num(Val(cur_it('1,','1,')));
 
 
-update_lz_vpath = DB('lz_vpath');
+update_lz_vpath = DB([num2str(NumOfNodes)'lz_vpath']);
 update_q_beta_t = DB('beta');
 
 
@@ -24,7 +24,7 @@ NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 
 
-update_q_output = DB(['lz_q' num2str(it+1)]);
+update_q_output = DB([num2str(NumOfNodes)'lz_q' num2str(it+1)]);
 if(~isempty(update_q_beta_t(sprintf('%d,',it),'1,')))
 beta_it_v = str2num(Val(update_q_beta_t(sprintf('%d,',it),'1,')));
 beta_it_v = 1./beta_it_v;
@@ -48,23 +48,15 @@ gap = floor(NumOfNodes / NumOfMachines);
 	% We need fill with 0s to make sure our query will return the same sequence of value to calculate v = v- sax_alpha_temp - sax_beta_temp
 		valVector = [];
 		for j = start_node:end_node  
-		% j is the row_id for the vector! We need to set Output = y - x*alph  
-		% y = str2num(Val(y(sprintf('%d,',j),'1,'))); 
-		% x = str2num(Val(x(sprintf('%d,',j),'1,')));
-		% newV = y - x * alph;
-		% newAssoc = Assoc(sprintf('%d,',j),'1,',sprintf('%.15f,',newV));
-		% put(output,newAssoc);
-		%% This operation might need optimization 
+		
      		if(~isempty(update_lz_vpath(sprintf('%d,',j),'1,')))
-     		vx = str2num(Val(update_lz_vpath(sprintf('%d,',j),'1,')));
-		else
-		vx = 0;
-		end
-		%disp(num2str(vx));
+     			vx = str2num(Val(update_lz_vpath(sprintf('%d,',j),'1,')));
+			else
+				vx = 0;
+			end
+		
      		newV = vx * beta_it_v;
-		valVector(size(valVector,2)+1) = newV;
-%     		newAssoc = Assoc(sprintf('%d,',j),'1,',sprintf('%.15f,',newV));
- %    		put(update_q_output,newAssoc);
+			valVector(size(valVector,2)+1) = newV;
 		end	
 		put(update_q_output,Assoc(sprintf('%d,',start_node:end_node),'1,',sprintf('%.15f,',valVector)));
 	end

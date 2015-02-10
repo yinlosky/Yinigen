@@ -31,19 +31,7 @@ col = str2num(Val(cur_loop_j('1,','1,')));
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 
-%disp('Construting the T matrix...');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%	main_diag = alpha(1:k);
-%	if(k<2)
-%       	Tmatrix = diag(main_diag);
-%	else 
-%		main_diag = alpha(1:k);
-%		off_diag = bet(1:k-1);
-%               Tmatrix = diag(main_diag) + diag(off_diag,1) + diag(off_diag,-1);
-%		Tmatrix
-%	end
-%disp(['Row is ' num2str(row)]);
 for temp_ind = 1:row
    alpha_arr(1,temp_ind) = str2num(Val(alpha_table(sprintf('%d,',temp_ind),:)));
 end
@@ -66,7 +54,7 @@ end
 
 
 %%%%%%%%%%%%%%Below is to get the matrix from lz_q{1:row}
-v_prefix = 'lz_q';   %% v_prefix is lz_q to retrieve the tables named from lz_q{1:row}
+v_prefix = ([num2str(NumOfNodes)'lz_q']);   %% v_prefix is lz_q to retrieve the tables named from lz_q{1:row}
 table_names = cell(row,1);
 for i = 1:row
 	table_names{i} = [v_prefix num2str(i)];

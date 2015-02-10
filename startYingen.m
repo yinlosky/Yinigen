@@ -138,7 +138,7 @@ disp(['Initializing the random vector b in table B' num2str(NumOfNodes)]);
 
 initB(NumOfMachines,NumOfProcessors, NumOfNodes,machines);
 
-%%%%% Task for Feb,10 modify the lz_q{i} to add the prefix {NumOfNodes} 
+%%%%% Task for Feb,10 modify the lz_q{i} to add the prefix {NumOfNodes} 1. parallel_mv_p2 
 % Add the time for each section 
 % remove the ingest time 
 
@@ -148,63 +148,78 @@ initB(NumOfMachines,NumOfProcessors, NumOfNodes,machines);
 for it = 1:max_iteration
 	disp('**************myEigen iterations***********************');
 	disp(['computing v=Aq ' num2str(it) ' ...']);
+
+    %%%%%%%%%%%%%%%%%%%%%%  matrix * vector begin **********************
+
 	it_assoc = Assoc('1,','1,',sprintf('%d,',it));
 	put(cur_it,it_assoc); %% globalize the current iteration so all processors will be able to read the right lz_q{it}
-	%aqnpath= mv(input_matrix, q_path{it},NumOfNodes, NumOfMachines); %% the parameter that is changing is q_path{it} lz_q{i} || so the parallel code will read this value from the table lz_q {this value will store the result from last step.}
-	temp = DB('mv_temp'); delete(temp); %% remove the temp table from previous operation for paralell_mv_p1.m
+	temp = DB('mv_temp'); delete(temp);temp = DB('mv_temp');  %% remove the temp table from previous operation for paralell_mv_p1.m
     eval(pRUN('parallel_mv_p1',NumOfProcessors,machines));
-    output = DB('lz_vpath'); delete(output); %% remove the lz_vpath table from previous iteration for parallel_mv_p2.m
-	eval(pRUN('parallel_mv_p2',NumOfProcessors,machines)); %% mv result will be stored in table 'lz_vpath'
- 	
-	disp(['Result of v = Aq ' num2str(it) ' is saved in table lz_vpath']);
-        
+    output = DB([num2str(NumOfNodes) 'lz_vpath']); delete(output); %% remove the {NumOfNodes}lz_vpath table from previous iteration for parallel_mv_p2.m
+	eval(pRUN('parallel_mv_p2',NumOfProcessors,machines)); %% mv result will be stored in table '{NumOfNodes}lz_vpath'
+
+	disp(['Result of v = Aq ' num2str(it) ' is saved in table ' num2str(NumOfNodes) 'lz_vpath']);
+    
+    %%%%%%%%%%%%%  matrix * vector done! ***************************************   
+
 	%% alpha(it) = dotproduct(aqnpath,q_path{it}, NumOfNodes, NumOfMachines);
 	%% dotproduct should save the output in table 'dot_output' ('1,','1,'), also result could be read from dot_product;
 	%% alpha(it) will read from the dot_output table.
-	disp(['Computing dotproduct of vi * v ... and saving the result in alpha(' num2str(it) ')']);
 
-	%temp = DB('dot_temp'); delete(temp);
-	eval(pRUN('parallel_dotproduct_p1',NumOfProcessors,machines));
+    % num2str(NumOfNodes)
+ 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% vi * v begin **********************************************
+	disp(['Computing dotproduct of vi * v ... and saving the result in alpha(' num2str(it) ')']);
 	
-	parallel_dotproduct_p2;
-	alpha(it) = dot_result;
+	eval(pRUN('parallel_dotproduct_p1',NumOfProcessors,machines));
+	alpha(it) = parallel_dotproduct_p2();
+
+	parallel_dotproduct_p1_temp = DB('dot_temp'); delete(parallel_dotproduct_p1_temp);
 	disp('Saving alpha to alpha_t');
 	alpha_temp_Assoc = Assoc(sprintf('%d,',it),'1,',sprintf('%.15f,',alpha(it)));
 	put(alpha_t, alpha_temp_Assoc);
 	disp(['Result of alpha[' num2str(it) '] =' num2str(alpha(it)) ' is saved.']);
 	
-	%% v = v - beta_i-1 * vi-1 - alpha_i* vi (vi is the lz_q(i)): three steps: 1. paralell_sax_beta.m 2. parallel_sax_alpha.m 3. parallel_sax_v.m
-	%% v will be written to 'lz_vpath' in parallel_sax_v.m   Note: if i == 1, v = v - alpha_sax_temp
-	%% beta_sax_temp will store the beta_i-1 * vi-1 vector; 
-	%% alpha_sax_temp will store the alpha_i * vi vector;
-	cur_it=DB('cur_it');
-	iteration=str2num(Val(cur_it('1,','1,')));
-	if(iteration ~= 1) 
-	%parallel_sax_beta_output = DB('beta_sax_temp'); delete(parallel_sax_beta_output);
+	%%%%%%%%%%%%%%%%%%% vi * v done! *****************************************************
+
+    %%%%%%%%%%%%%%%%%%% Calculating v = v - beta{i-1}*v{i-1} - alpha{i}*v{i} **********************
+    	
+	if(it ~= 1) 
+	parallel_sax_beta_output = DB('beta_sax_temp');
 	eval(pRUN('parallel_sax_beta',NumOfProcessors,machines));
 	end 
-	%parallel_sax_alpha_output = DB('alpha_sax_temp'); delete(parallel_sax_alpha_output);
+	parallel_sax_alpha_output = DB('alpha_sax_temp');
 	eval(pRUN('parallel_sax_alpha',NumOfProcessors,machines));
-	%parallel_sax_v_t = DB('lz_vpath'); delete(parallel_sax_v_t);
+	
 	eval(pRUN('parallel_sax_v',NumOfProcessors,machines));
-	disp('v is saved in lz_vpath table');
+	parallel_sax_beta_output = DB('beta_sax_temp'); delete(parallel_sax_beta_output);
+	parallel_sax_alpha_output = DB('alpha_sax_temp'); delete(parallel_sax_alpha_output);
+
+	disp(['v is saved in ' num2str(NumOfNodes) 'lz_vpath table']);
+     
+
+	%%%%%%%%%%%%%%%%%%% Calculating v = v - beta{i-1}*v{i-1} - alpha{i}*v{i}  Done!**********************
+
+	%*************  Calculating beta{i} = ||v|| *************************************************************
 
         disp(['Computing beta[' num2str(it) ']...']);
-	%bet(it) = lz_norm(v_path,NumOfNodes,NumOfMachines);
-	%norm_v_temp = 'lz_norm_v_temp'; delete(norm_v_temp);
 	eval(pRUN('parallel_lz_norm_v_p1',NumOfProcessors,machines));
 	parallel_lz_norm_v_p2; %% scalar_v is written to beta_i in the table beta_t('i,','1,')
 	bet(it) = scalar_v;
+	parallel_lz_norm_v_tempt = DB(['lz_norm_v' num2str(NumOfNodes) '_temp']);
+	delete(parallel_lz_norm_v_tempt);
 	disp(['beta[' num2str(it) '] = ' num2str(bet(it))]);
 	
-	%% Done locally %%%%%%%%%%%%%%%%%%%
+	%********* Calculating beta{i} Done locally %%%%%%%%%%%%%%%%%%%
+
+
 	disp(['Constructing the Tridigonal matrix...']);
 	num_ortho = 0;
 	tempTmatrix = constructT(it, alpha, bet); 
 	[Q,D] = eig(tempTmatrix);
         D = diag(D);
 	%% Do selective_orthogonalize locally%%%%
-	v_path = 'lz_vpath';
+	v_path = ([num2str(NumOfNodes) 'lz_vpath']);
 	disp(['Starting so, iterations # is ' num2str(it) ' beta_it value is: ' num2str(bet(it))]);
 	num_ortho = parallel_selective_orthogonalize(it, bet(it), v_path, Q,D, NumOfNodes, NumOfMachines,NumOfProcessors);
 	disp(['Number of orthongalization: ' num2str(num_ortho)]);
@@ -212,13 +227,15 @@ for it = 1:max_iteration
    	
 
 	if(num_ortho > 0)
-	disp(['Recomputing beta[' num2str(it) ']']);
-	%norm_v_temp = DB('lz_norm_v_temp'); delete(norm_v_temp);
-	eval(pRUN('parallel_lz_norm_v_p1',NumOfProcessors,machines));
-	parallel_lz_norm_v_p2; %% scalar_v is written to beta_i in the table beta_t('i,','1,')
-	bet(it) = scalar_v;
-	disp(['beta[' num2str(it) ']=' num2str(bet(it))]);
+		disp(['Recomputing beta[' num2str(it) ']']);
+		eval(pRUN('parallel_lz_norm_v_p1',NumOfProcessors,machines));
+		parallel_lz_norm_v_p2; %% scalar_v is written to beta_i in the table beta_t('i,','1,')
+		bet(it) = scalar_v;
+		disp(['beta[' num2str(it) ']=' num2str(bet(it))]);
+		parallel_lz_norm_v_tempt = DB(['lz_norm_v' num2str(NumOfNodes) '_temp']);
+		delete(parallel_lz_norm_v_tempt);
 	end
+
 	if(num_ortho > it - 1)
 	disp('The new vector converged. Finishing ...');
         compute_eigval(it, alpha, bet, eig_k);
@@ -234,14 +251,8 @@ for it = 1:max_iteration
 	end
 	
 	disp(['Computing q' num2str(it+1) '...']);
-	%qnp1_path_temp = ScalarMult(v_path, bet(it), NumOfNodes, NumOfMachines);
-	%disp(['Renaming ' qnp1_path_temp ' to ' q_path{it+1}]);
-	%temp_db = DB(qnp1_path_temp);
-	%old_table = DB(q_path{it+1});
-	%delete(old_table);
-	%rename(temp_db,q_path{it+1});
-	%% lz_q{it+1} = lz_vpath * (1/beta_it);
-	%%
+
+	%%%%%%%%%%%%%%  Update {NumOfNodes}lz_vpath %%%%%%%%%%%%%%%%%%%%%%
 
 	eval(pRUN('parallel_update_q',NumOfProcessors,machines));
 	disp(['q_{' num2str(it+1) '} is calcualted']);
@@ -249,12 +260,13 @@ for it = 1:max_iteration
 	compute_eigval(it, alpha, bet, eig_k);
 	disp('Saving the tridiagonal matrix');
 	save_tridiagonal_matrix(alpha, bet, it);
+    	
+
+end  %% end for loop
 	
-	end  %% end for loop
-	
-	if(it>max_iteration)
+
 	disp('!!!!!!Reached the max iterations. Finishing...');
-	end
+	
 	disp('Summarizing alpha[] and bet[]...');
 	disp(sprintf('\n\talpha\tbeta'));
 	for n = 1:max_iteration

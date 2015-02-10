@@ -5,7 +5,7 @@
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Running p2!');
-temp_t = DB('lz_norm_v_temp'); % remove the temp table if exisits already 
+temp_t = DB(['lz_norm_v' num2str(NumOfNodes) '_temp']); % remove the temp table if exisits already 
 
 disp(['Try to verify if temp_t has ' num2str(NumOfMachines)  ' elemetns!']);
 temp_t(:,:)
@@ -21,17 +21,6 @@ OutputT = DB('beta');
  end   %%% Calcualate the total sum of the values	
 
 
-%% scalar_v=0;
-
-%% for i= myMachine
-	%if(~isempty(temp_t(sprintf('%d,',i),'1,')))
-%%	temp = str2num(Val(temp_t(sprintf('%d,',i),'1,')));
-	%else
-	%temp = 0;
-	%end
-%%	disp(['temp ' num2str(i) 'th is: ' num2str(temp)]);
-%%	scalar_v = scalar_v + temp;
-%% end
 disp(['Before sqrt: ' sprintf('%.15f,', scalar_v)]);
 scalar_v = sqrt(scalar_v);
 disp(['After sqrt: ' sprintf('%.15f,', scalar_v)]);

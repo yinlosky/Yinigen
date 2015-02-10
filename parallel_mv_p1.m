@@ -3,34 +3,36 @@
 % Function: this is the p1 of mv in parallel, input matrix is 'InputMatrix', input vector table should read the current iteration value from cur_it table
 %
 myDB; %% connect to DB and return a binding named DB.
+
 machines_t = DB('NumOfMachines');
 nodes_t = DB('NumOfNodes');
 cur_it = DB('cur_it');
-%inputm_t = DB('InputMatrixName');
+
 
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
-vector = ['lz_q' num2str(str2num(Val(cur_it('1,','1,'))))];
-%inputmatrix_name = sprintf('%s',Val(inputm_t('1,','1,')) )
+vector = [num2str(NumOfNodes) 'lz_q' num2str(str2num(Val(cur_it('1,','1,'))))];
+
 
 disp(['!!!!!!!Now running matrix multiply the vector!!!!!!!!!!!!!']);
 disp(['********matrix:  InputMatrix  times vector: ' vector ' into mv_temp ************']);
 
-m = DB('InputMatrix');
+m = DB(['M' num2str()]);
 v = DB(vector);
 temp = DB('mv_temp'); %%hard coded temporary output table
 
-gap = floor(NumOfNodes / NumOfMachines);
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% parallel part %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% For now split is evenly distributed among the machines
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+gap = floor(NumOfNodes / NumOfMachines);
 myMachine = 1:NumOfMachines;
 w = zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
 myMachine = global_ind(w); %Parallel
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% For now split is evenly distributed among the machines
-%%%
-%%%
-%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 for i = myMachine
 
         start_node = (i-1)*gap+1;
@@ -39,73 +41,40 @@ for i = myMachine
         else
         end_node = NumOfNodes ;
         end
-       for j = start_node:end_node
-	disp(['current j is:' num2str(j)]);
-	[row,col,val] = m(:,sprintf('%d,',j));  %% Get all the rows from col j from input matrix!!
-	if(~isempty(val))     % if v is empty do nothing
-         [vectorR,vectorC,vectorV] = v(sprintf('%d,',j),'1,'); % everything returns from associative array is string
+
+        %% read all input from this node 
+        ColsOfMatrix = m(:,sprintf('%d,',start_node:end_node));  %% Get all the rows from col j from input matrix!!
+
+        %% read the corresponding vector for this node
+        [vectorR,vectorC,vectorV] = v(sprintf('%d,',start_node:end_node),:); % everything returns from associative array is string
         vectorV = str2num(vectorV);  % get the integer num of vectorV
-	matrixV = str2num(val);    
-	matrixV = matrixV .* vectorV;
-	valStr = sprintf('%.15f,',matrixV);
-        rowStr = sprintf('%d,',str2num(row));                % rowStr is all the row id from matrix from col j
-	colStr = sprintf('%d,',j);
-	put(temp,Assoc(rowStr,colStr,valStr));
-	end
-	end
+        
+        % Store the result for building up the associative arrays
+        ArowStr ='';
+        AcolStr ='';
+        AvalStr ='';
+        
+    for j = start_node:end_node
+	    disp(['current j is:' num2str(j)]);
+	    [JR, JC, JCol] = ColsOfMatrix(:,sprintf('%d,',j));
+        if(~isempty(JCol))
+         JCol = str2num(JCol);
+         Jvector = vectorV(j);
+         JCol = JCol .* Jvector;
+         rowStr = sprintf('%d,',str2num(JR));
+         colStr = sprintf('%d,',str2num(JC));
+         valStr = sprintf('%.15f,',JCol);
+         ArowStr = strcat(ArowStr,rowStr);
+         AcolStr = strcat(AcolStr,colStr);
+         AvalStr = strcat(AvalStr,valStr);
+        end
+    end
+
+        put(temp,Assoc(ArowStr,AcolStr,AvalStr));
 end
-agg(w);
-%        myRow = str2num(Row(m(:,sprintf('%d,',j))));
-%        vector_j = str2num(Val(v(sprintf('%d,',j),'1,')));
-%        [M,N] = size(myRow);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                if (M>0)
-%                for i=1:M
-%                matrix_i = str2num(Val(m(sprintf('%d,',myRow(i)),sprintf('%d,',j))));
-%                newVal= matrix_i * vector_j;
-%                newAssoc = Assoc(sprintf('%d,',myRow(i)),sprintf('%d,',j),sprintf('%.15f,',newVal));
-%                put(temp,newAssoc);
-%                end (if)
-%                end (for)
-%        end   (if)
-%        end  (for)
+agg(w)
+      
 
 
-% end
-%agg(w);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%for i = myMachine
-%
-%        start_node = (i-1)*gap+1;
-%	if (i<NumOfMachines)
-%	end_node = i*gap ;
-%	else 
-%	end_node = NumOfNodes ;
-%	end
-%	for j = start_node:end_node
-%
-%	disp(['current j is:' num2str(j)]);
-%	[Mm,Nn]=size(Row(m(:,sprintf('%d,',j))));   %Nn will tell if m has 0 elements 
-%        if(Nn ~= 0)                             %Do only when m has elements
-%	myRow = str2num(Row(m(:,sprintf('%d,',j))));
-%	vector_j = str2num(Val(v(sprintf('%d,',j),'1,')));
-%	[M,N] = size(myRow);
-%	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%		if (M>0)
-%		for i=1:M
-%		matrix_i = str2num(Val(m(sprintf('%d,',myRow(i)),sprintf('%d,',j))));
-%		newVal= matrix_i * vector_j;
-%		newAssoc = Assoc(sprintf('%d,',myRow(i)),sprintf('%d,',j),sprintf('%.15f,',newVal));
-%		put(temp,newAssoc);
-%		end
-%		end
-%	end
-%	end
-%	
-%
-% end
-%agg(w);
 
 

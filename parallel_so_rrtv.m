@@ -26,18 +26,18 @@ w = zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
 myMachine = global_ind(w); %Parallel
 	for i = myMachine
         start_node = (i-1)*gap+1;
-	if (i<NumOfMachines)
-	end_node = i*gap ;
-	else 
-	end_node = NumOfNodes ;
-	end
+			if (i<NumOfMachines)
+				end_node = i*gap ;
+			else 
+				end_node = NumOfNodes ;
+			end
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node)]);
        
-        [inVR,inVC,inVV] = input_v(sprintf('%d,',start_node:end_node),:);
+    [inVR,inVC,inVV] = input_v(sprintf('%d,',start_node:end_node),:);
 	if(~isempty(inVV))
-	newV = str2num(inVV) * scalar_rtvv;
-	rowStr = sprintf('%d,',str2num(inVR));
-valStr =sprintf('%.15f,',newV);
+		newV = str2num(inVV) * scalar_rtvv;
+		rowStr = sprintf('%d,',str2num(inVR));
+		valStr =sprintf('%.15f,',newV);
         put(output,Assoc(rowStr,'1,',valStr));
 	end
 end

@@ -18,7 +18,7 @@ NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 p_rtv_temp = DB('rtv_temp');
 
 v = DB('so_rpath'); 
-vi = DB('lz_vpath');
+vi = DB([num2str(NumOfNodes) 'lz_vpath']);
 
 gap = floor(NumOfNodes / NumOfMachines);
 w = zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
@@ -41,18 +41,18 @@ for i = myMachine
 
 temp_sum = 0;
 for j = start_node:end_node  % j is the row_id for the vector! We need to multiply the element from the same row_id. 
-	if(~isempty(v(sprintf('%d,',j),'1,')))
-	x = str2num(Val(v(sprintf('%d,',j),'1,')));
-	else 
-	x = 0;
-	end
-	if(~isempty(vi(sprintf('%d,',j),'1,')))
-	y = str2num(Val(vi(sprintf('%d,',j),'1,')));
-	else
-	y = 0;
-	end
+		if(~isempty(v(sprintf('%d,',j),'1,')))
+			x = str2num(Val(v(sprintf('%d,',j),'1,')));
+		else 
+			x = 0;
+		end
+		if(~isempty(vi(sprintf('%d,',j),'1,')))
+			y = str2num(Val(vi(sprintf('%d,',j),'1,')));
+		else
+			y = 0;
+		end
 	temp_sum = temp_sum + x * y;
-	end 
+end 
   newAssoc = Assoc(sprintf('%d,',i),'1,',sprintf('%.15f,',temp_sum));
   put(p_rtv_temp,newAssoc);
 end 

@@ -19,8 +19,8 @@ NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variables defintion %%%%%%%%%%%%%%%%%%%%%%%%%
 
-Input_table = 'lz_vpath';   % local variable hard coded.
-norm_v_temp = 'lz_norm_v_temp'; % local variable for temp table, temp table will be read for p2
+Input_table = ([num2str(NumOfNodes) 'lz_vpath']);   % local variable hard coded.
+norm_v_temp = (['lz_norm_v' num2str(NumOfNodes) '_temp']); % local variable for temp table, temp table will be read for p2
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,13 +42,13 @@ myMachine = global_ind(w); %Parallel
 %% Later, all local results are summed up and sqr root for the final norm.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = myMachine
-	%fname = ['lz_norm/' num2str(i)]; disp(fname);
+
         start_node = (i-1)*gap+1;
-	if (i<NumOfMachines)
-	end_node = i*gap ;
-	else 
-	end_node = NumOfNodes ;
-	end
+		if (i<NumOfMachines)
+			end_node = i*gap ;
+		else 
+			end_node = NumOfNodes ;
+		end
 	length = end_node - start_node+1;
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node) 'length: ' num2str(length)]);
 	
@@ -62,9 +62,5 @@ for i = myMachine
 	disp(['Result in ' num2str(i) ' th processor is ' valStr]);
 	resultAssoc = Assoc(sprintf('%d,',i),'1,',valStr);
 	put(norm_v_temp, resultAssoc);
-	%fidVal = fopen([fname 'v.txt'],'w'); %% written to lz_norm/iv.txt
-	
-	%fwrite(fidVal,valStr); 
-	%fclose(fidVal);
 end
 agg(w); %% wait for processors to finish all the work! This could possibly optimze for performance!!!

@@ -15,15 +15,7 @@ output = DB('scalar_rtv');
 	else
 	final = sum(str2num(tempV));
 	end
- 
-%for i = 1:NumOfMachines
-%	if(~isempty(temp(sprintf('%d,',i),'1,')))
-%	tempV = str2num(Val(temp(sprintf('%d,',i),'1,')));
-%	else
-%	tempV = 0;
-%	end
-%	final = final + tempV;
-%end
+
 
  Result = Assoc('1,','1,',sprintf('%.15f,',final));
  put(output, Result);

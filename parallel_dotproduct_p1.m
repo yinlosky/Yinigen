@@ -31,12 +31,14 @@ cur_it = DB('cur_it');
 
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
-vector = ['lz_q' num2str(str2num(Val(cur_it('1,','1,'))))];
-
-v = DB('lz_vpath'); 
+vector = [num2str(NumOfNodes) 'lz_q' num2str(str2num(Val(cur_it('1,','1,'))))];
+v = DB([num2str(NumOfNodes) 'lz_vpath']); 
 vi = DB(vector);
 
+%output table dot_temp
 temp = DB('dot_temp');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   Parallel part %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 gap = floor(NumOfNodes / NumOfMachines);
 w = zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
@@ -52,33 +54,27 @@ for i = myMachine
 	end
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node)]);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Two approaches for this embarassing parallel job, one is to multiply one pair once and then sum them up, the other is use iterator 
-% Not sure which is faster!!! For now I am taking the first approach.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% from previous step we have guaranteed that the vi and v are all filled with values
-%% when use the range query the returned val string is not sorted in numerical order, but we have filled them will 0s, so the sequence of returned value is the same
-   %  [vRow,vCol,vVal] = v(sprintf('%d,',start_node:end_node),:); 
-   %  [viRow,viCol,viVal]= vi(sprintf('%d,',start_node:end_node),:);
-%	vVal = str2num(vVal);
-%	viVal = str2num(viVal);
-%	temp_sum = viVal.' * vVal;
-%	put(temp, Assoc(sprintf('%d,',i),'1,',sprintf('%.15f',temp_sum)));
 	temp_sum = 0;
+
+	% fetch all rows of value from the v and vi 
+ 	RowsOfV = v(sprintf('%d,',start_node:end_node),:);
+    RowsOfVi = vi(sprintf('%d,',start_node:end_node),:);
+
 for j = start_node:end_node  % j is the row_id for the vector! We need to multiply the element from the same row_id. 
 	
-	if(~isempty(v(sprintf('%d,',j),'1,')))
-	x = str2num(Val(v(sprintf('%d,',j),'1,')));
+	if(~isempty(Val(RowsOfV(sprintf('%d,',j),'1,'))))
+	x = str2num(Val(RowsOfV(sprintf('%d,',j),'1,')));
 	else 
 	x = 0;
 	end
-	if(~isempty(vi(sprintf('%d,',j),'1,')))
-	y = str2num(Val(vi(sprintf('%d,',j),'1,')));
+	if(~isempty(Val(RowsOfVi(sprintf('%d,',j),'1,'))))
+	y = str2num(Val(RowsOfVi(sprintf('%d,',j),'1,')));
 	else
 	y = 0;
 	end
 	temp_sum = temp_sum + x * y;
 	end 
+
   newAssoc = Assoc(sprintf('%d,',i),'1,',sprintf('%.15f,',temp_sum));
   put(temp,newAssoc);
 end 

@@ -19,7 +19,7 @@ cur_it = DB('cur_it');
 
 parallel_sax_v_alpha_t = DB('alpha_sax_temp');
 parallel_sax_v_beta_t = DB('beta_sax_temp');
-parallel_sax_v_t = DB('lz_vpath');
+parallel_sax_v_t = DB([num2str(NumOfNodes)'lz_vpath']);
 
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
@@ -39,39 +39,35 @@ disp(['Calcuating lz_vpath = lz_vpath - beta_sax_temp - alpha_sax_temp' ]);
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node)]);
 
 %%% we keep the for loop because we need make sure the query return value sequence is the same or it will give the wrong answer.
-                valVector=[];
+        valVector=[];
 		for j = start_node:end_node  
-		% j is the row_id for the vector! We need to set Output = y - x*alph  
-		% y = str2num(Val(y(sprintf('%d,',j),'1,'))); 
-		% x = str2num(Val(x(sprintf('%d,',j),'1,')));
-		% newV = y - x * alph;
-		% newAssoc = Assoc(sprintf('%d,',j),'1,',sprintf('%.15f,',newV));
-		% put(output,newAssoc);
-		%% This operation might need optimization 
-                 if(~isempty(parallel_sax_v_t(sprintf('%d,',j),'1,')))     		
-     		vv = str2num(Val(parallel_sax_v_t(sprintf('%d,',j),'1,')));
-		else
-		vv = 0;
-		end
-		if(~isempty(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')))
-		valpha = str2num(Val(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')));
-		else
-		valpha = 0;
-		end
-		if (it == 1)
-		vbeta = 0;
-		else
-		  if(~isempty(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')))
-		 vbeta = str2num(Val(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')));
-		  else vbeta = 0;
-		  end
-		end
+		 
+              if(~isempty(parallel_sax_v_t(sprintf('%d,',j),'1,')))     		
+     			vv = str2num(Val(parallel_sax_v_t(sprintf('%d,',j),'1,')));
+			  else
+				vv = 0;
+			  end
+				if(~isempty(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')))
+					valpha = str2num(Val(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')));
+				else
+					valpha = 0;
+				end
+				if (it == 1)
+					vbeta = 0;
+				  else
+				  if(~isempty(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')))
+				  vbeta = str2num(Val(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')));
+				  else vbeta = 0;
+			 	  end
+			    end
+
      		newV = vv - vbeta - valpha;
-                 valVector(size(valVector,2)+1)=newV;
+        	valVector(size(valVector,2)+1)=newV;
      		%newAssoc = Assoc(sprintf('%d,',j),'1,',sprintf('%.15f,',newV));
      		%put(parallel_sax_v_t,newAssoc);
 		end	
 		put(parallel_sax_v_t,Assoc(sprintf('%d,',start_node:end_node),'1,',sprintf('%.15f,',valVector)));
 	end
+
 	agg(w);
 
