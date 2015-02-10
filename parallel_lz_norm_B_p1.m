@@ -17,14 +17,16 @@ NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% variables defintion %%%%%%%%%%%%%%%%%%%%%%%%%
 
-Input_table = 'B';   % local variable hard coded.
-temp = 'lz_norm_B_temp'; % local variable for temp table, temp table will be read for p2
+Input_table = ['B' num2str(NumOfNodes)];   % local variable hard coded.
+temp = ['lz_norm_B' num2str(NumOfNodes) '_temp']; % local variable for temp table, temp table will be read for p2
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 InputT = DB(Input_table); % create a database binding to the input table.
 temp_t = DB(temp); % create a database binding to the temp table
+delete(temp_t);
+temp_t = DB(temp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Parallel read the input_table, and set the range for each reader, each reader will write the sum of sqr in a local directory called lz_norm/iv.txt(i is the id of each reader)
@@ -41,7 +43,6 @@ myMachine = global_ind(w); %Parallel
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i = myMachine
 	tic;
-	%fname = ['lz_norm/' num2str(i)]; disp(fname);
         start_node = (i-1)*gap+1;
 	if (i<NumOfMachines)
 	end_node = i*gap ;
@@ -61,10 +62,6 @@ for i = myMachine
 	disp(['Result in ' num2str(i) ' th processor is ' valStr]);
 	resultAssoc = Assoc(sprintf('%d,',i),'1,',valStr);
 	put(temp_t, resultAssoc);
-	%fidVal = fopen([fname 'v.txt'],'w'); %% written to lz_norm/iv.txt
-	
-	%fwrite(fidVal,valStr); 
-	%fclose(fidVal);
 	fileTime = toc;
 	disp(['Time: ' num2str(fileTime)]);
 end

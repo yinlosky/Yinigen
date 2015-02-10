@@ -6,18 +6,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp('Running p2!');
-temp_t = DB('lz_norm_B_temp'); % remove the temp table if exisits already 
-disp('Try to verify if temp_t has 2 elemetns!');
+
+nodes_t = DB('NumOfNodes');
+NumOfNodes = str2num(Val(nodes_t('1,','1,')));
+machines_t = DB('NumOfMachines');
+NumOfMachines = str2num(Val(machines_t('1,','1,')));
+
+temp_t = DB(['lz_norm_B' num2str(NumOfNodes) '_temp']); % remove the temp table if exisits already 
+disp(['Try to verify if temp_t has ' num2str(NumOfMachines) ' elemetns!']);
 temp_t(:,:)
 tic;
 myMachine = 1:NumOfMachines;
-scalar_b=0;
-for i= myMachine
-	disp(num2str(i));
-	temp = str2num(Val(temp_t(sprintf('%d,',i),'1,')));
-	disp(['temp ' num2str(i) 'th is: ' num2str(temp)]);
-	scalar_b = scalar_b+ temp;
-end
+[temptR,temptC,temptV] = temp_t(sprintf('%d,',1:NumOfMachines),:);
+temptV = str2num(temptV);
+scalar_b = sum(temptV);
+
 disp(['Before sqrt: ' sprintf('%.15f,', scalar_b)]);
 scalar_b = sqrt(scalar_b);
 disp(['After sqrt: ' sprintf('%.15f,', scalar_b)]);
@@ -29,3 +32,4 @@ disp(['In p2 Sum is: ' sprintf('%.15f',scalar_b)]);
 disp(['In table: ' num2str(Val(OutputT('1,','1,')))]);
 sumTime=toc;
  disp(['Time for summing the local files' num2str(sumTime)]);
+ delete(temp_t);
