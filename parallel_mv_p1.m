@@ -17,7 +17,7 @@ vector = [num2str(NumOfNodes) 'lz_q' num2str(str2num(Val(cur_it('1,','1,'))))];
 disp(['!!!!!!!Now running matrix multiply the vector!!!!!!!!!!!!!']);
 disp(['********matrix:  InputMatrix  times vector: ' vector ' into mv_temp ************']);
 
-m = DB(['M' num2str()]);
+m = DB(['M' num2str(NumOfNodes)]);
 v = DB(vector);
 temp = DB('mv_temp'); %%hard coded temporary output table
 
