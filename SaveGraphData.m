@@ -36,7 +36,7 @@ myFiles = global_ind(w);   % PARALLEL.
 for i = myFiles
   
     rand('seed',i);                              % Set random seed to be unique for this file.
-    [v1 v2] = SymKronGraph500NoPerm(SCALE,EdgesPerVertex./Nfile);       % Generate data.
+    [v1 v2] = SymKronGraph500NoPerm(Scale,EdgesPerVertex./Nfile);       % Generate data.
  
     rowStr = sprintf('%d,',v1);                                      % Convert to strings.
     colStr = sprintf('%d,',v2);
