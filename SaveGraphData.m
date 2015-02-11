@@ -3,8 +3,17 @@
 % Generate a Kronecker graph and save to data files.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                  % Turn off echoing.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%410 669 3131
+
 myDB;
-MatrixName = 'M4096';
+
+nodes_t = DB('Scale');
+Scale = str2num(Val(nodes_t(:,:)));
+MatrixName = (['M' num2str(2^Scale)]);
+initM_numofm = DB('numofm');
+Nfile = str2num(Val(initM_numofm(:,:)));
+
+initM_edges = DB('edges');
+EdgesPerVertex = str2num(Val(initM_edges(:,:)));
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Remove old table %%%%%%%%%%%%%%%%%%%%%%%%
 %myMatrix = DB([MatrixName]);
@@ -14,11 +23,11 @@ MatrixName = 'M4096';
 myMatrix = DB([MatrixName]); 
 %SCALE = 22;   EdgesPerVertex = 16;               % Set algorithm inputs.
 %SCALE = 18;   EdgesPerVertex = 16;               % Set algorithm inputs.
-SCALE = 12;   EdgesPerVertex = 16;               % Set algorithm inputs.
-Nmax = 2.^SCALE;                                 % Max vertex ID.
+
+Nmax = 2^Scale;                                 % Max vertex ID.
 M = EdgesPerVertex .* Nmax;                      % Total number of edges.
 
-Nfile = 2;                                       % Set the number of files to save to.
+                                      % Set the number of files to save to.
 
 %myFiles = 1:Nfile;                               % Set list of files.
 w = zeros(Nfile,1,map([Np 1],{},0:Np-1));
@@ -26,12 +35,6 @@ myFiles = global_ind(w);   % PARALLEL.
 
 for i = myFiles
   
-
-   % if ~exist('data','dir') 
-	%mkdir('data');
-   % end 
-   % fname = ['data/' num2str(i)];  disp(fname);  % Create filename.
-
     rand('seed',i);                              % Set random seed to be unique for this file.
     [v1 v2] = SymKronGraph500NoPerm(SCALE,EdgesPerVertex./Nfile);       % Generate data.
  
