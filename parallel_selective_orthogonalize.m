@@ -25,7 +25,7 @@ myDB;
 		case 1
 			machines={};
 		case 2
-			machines  ={'hec-51' 'hec-50'};
+			machines  = {};                       %{'hec-51' 'hec-50'};
 		case 8
 			machines={'hec-51' 'hec-50' 'hec-49' 'hec-48' 'hec-47' 'hec-46' 'hec-45' 'hec-44'};
 	end

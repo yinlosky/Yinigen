@@ -9,7 +9,7 @@ machines_t = DB('NumOfMachines');
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 B=DB(BtableName);
 
-gap = floor(NumOfNodes/NumOfMachines)
+gap = floor(NumOfNodes/NumOfMachines);
 w=zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
 myMachine = global_ind(w);
 %%%%%%%%%%%%%%%%%%%%%%%%%

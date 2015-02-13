@@ -14,14 +14,14 @@ machines_t = DB('NumOfMachines');
 nodes_t = DB('NumOfNodes');
 cur_it = DB('cur_it');
 it = str2num(Val(cur_it('1,','1,')));
-
+NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 
 update_lz_vpath = DB([num2str(NumOfNodes) 'lz_vpath']);
 update_q_beta_t = DB('beta');
 
 
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
-NumOfNodes = str2num(Val(nodes_t('1,','1,')));
+
 
 
 update_q_output = DB([num2str(NumOfNodes) 'lz_q' num2str(it+1)]);

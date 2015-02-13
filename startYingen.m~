@@ -1,4 +1,4 @@
-function startYingen(NumOfMachines,  NumOfProcessors, NumOfNodes, max_iteration,eig_k,KeepB)
+function startYingen(NumOfMachines,  NumOfProcessors, NumOfNodes, max_iteration,eig_k)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% File Name: startYingen.m
@@ -19,9 +19,8 @@ function startYingen(NumOfMachines,  NumOfProcessors, NumOfNodes, max_iteration,
 
 
 %%%%BUG1: parallel_mv_p1.m needs inputmatrix to be renamed.
-disp(['Start time: ' sprintf('\n')]);
-StartTime = datestr(now);
-diary ([num2str(NumOfNodes) 'logs.txt']);
+
+diary ([num2str(NumOfNodes) '.txt']);
 
 switch NumOfMachines
 	case 4
@@ -137,9 +136,7 @@ disp(['Initializing the random vector b in table B' num2str(NumOfNodes)]);
 %   2.calculate the norm of vector B in scalar_b table
 %	3.save the normalized vector B in {NumOfNodes}lz_q1 
 
-if (KeepB ~= 1)
-	initB(NumOfMachines,NumOfProcessors, NumOfNodes,machines);
-end
+initB(NumOfMachines,NumOfProcessors, NumOfNodes,machines);
 
 %%%%% Task for Feb,10 modify the lz_q{i} to add the prefix {NumOfNodes} 1. parallel_mv_p2 
 % Add the time for each section 
@@ -280,8 +277,7 @@ end  %% end for loop
 	
 	alltime = toc;
 	disp(['Total running time is: ' num2str(alltime)]);
-	disp(['Ending time: ' sprintf('\n')]);
-	datestr(now)
-	disp(['Begin time: ' StartTime]);
+
 	diary off;
 end %end function
+g

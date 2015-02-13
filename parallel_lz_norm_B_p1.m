@@ -11,7 +11,7 @@ myDB;
 machines_t = DB('NumOfMachines');
 nodes_t = DB('NumOfNodes');
 
-
+disp(['In parallel_lz_norm_B_p1! ' sprintf('\t') 'NumOfMachines: ' num2str(NumOfMachines) 'NumOfNodes: ' num2str(NumOfNodes)]);
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,7 +33,6 @@ temp_t = DB(temp);
 
 gap = floor(NumOfNodes / NumOfMachines);
 
-myMachine = 1:NumOfMachines;
 w = zeros(NumOfMachines,1,map([Np 1],{},0:Np-1));
 myMachine = global_ind(w); %Parallel
 
@@ -51,18 +50,14 @@ for i = myMachine
 	end
 	length = end_node - start_node+1;
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node) 'length: ' num2str(length)]);
-	
-	
-	queryRange = sprintf('%d,',start_node:end_node);
-	tempStr=Val(InputT(queryRange,:));
-	res = cell2mat(textscan(tempStr,'%.15f','Delimiter','\n')); %% textscan will read well-formatted data into a cell array with new line as delimiter; the result will be transfered into a matrix
-	tempSum = norm(res)^2;  %% This is the norm(result)^2. tempSum is to be written on local temp file 
-	
-	valStr = sprintf('%.15f,', tempSum);
-	disp(['Result in ' num2str(i) ' th processor is ' valStr]);
-	resultAssoc = Assoc(sprintf('%d,',i),'1,',valStr);
-	put(temp_t, resultAssoc);
+		
+	[InputR,InputC,InputV] = InputT(sprintf('%d,',start_node:end_node),:); 
+	InputV = str2num(InputV);
+	InputV = norm(InputV)^2;
+	resultAssoc = Assoc(sprintf('%d,',i),'1,',sprintf('%.15f,',InputV));
+	put(temp_t,resultAssoc);
+
 	fileTime = toc;
-	disp(['Time: ' num2str(fileTime)]);
+	disp(['Time to parallel_lz_norm_B_p1: ' num2str(fileTime)]);
 end
 agg(w); %% wait for processors to finish all the work! This could possibly optimze for performance!!!

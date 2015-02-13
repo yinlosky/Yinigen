@@ -16,7 +16,7 @@ temp_t = DB(['lz_norm_B' num2str(NumOfNodes) '_temp']); % remove the temp table 
 disp(['Try to verify if temp_t has ' num2str(NumOfMachines) ' elemetns!']);
 temp_t(:,:)
 tic;
-myMachine = 1:NumOfMachines;
+
 [temptR,temptC,temptV] = temp_t(sprintf('%d,',1:NumOfMachines),:);
 temptV = str2num(temptV);
 scalar_b = sum(temptV);
