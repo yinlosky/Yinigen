@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% File Name: parallel_rtv_p1.m
 %% Function: this is internal function for parallel_selective_orthogonalize.m to compute the rtv parallelly p1 the intermidiate result saved in 'rtv_temp'
 %%  p2 will read from rtv_temp and write the result in 'scalar_rtv'.

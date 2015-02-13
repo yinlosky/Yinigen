@@ -38,7 +38,7 @@ error_bound = abs(sqrt(eps)*D(k));
 
 for j = 1:k
 	cur_error = abs(beta_i * Q(k,j));
-	disp(['Error of' num2str(j) '/' num2str(k) ' th vector:' num2str(cur_error)]);
+	disp(['Error of' num2str(j) '/' num2str(k) ' th vector:' num2str(cur_error) 'compare to ' num2str(error_bound)]);
 		
 		if(cur_error <= error_bound)
 			disp(['V need to be reorthogalized by ' num2str(j) 'th Ritz Vector']);

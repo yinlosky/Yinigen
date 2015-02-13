@@ -4,7 +4,7 @@ function initMatrix(NumOfMachines,Scale,EdgesPerVertex)
 %%  an accumulo table named M{2^Scale}.
 %%  Note: 1. This will generate a corresponding HEIGEN edge file 
 %%  Note: 2. The M{2^Scale} is symmetric
-
+myDB;
 NumOfNodes = 2^Scale;
 initM_scale = DB('Scale');
 initM_numofm = DB('numofm');

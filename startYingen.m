@@ -19,8 +19,9 @@ function startYingen(NumOfMachines,  NumOfProcessors, NumOfNodes, max_iteration,
 
 
 %%%%BUG1: parallel_mv_p1.m needs inputmatrix to be renamed.
-
-diary optimizeTest.txt;
+disp(['Start time: ' sprintf('\n')]);
+datestr(now);
+diary ([num2str(NumOfNodes) '.txt']);
 
 switch NumOfMachines
 	case 4
@@ -49,13 +50,13 @@ alpha_t = DB('alpha'); %% store the alpha array in accumulo table 'alpha'
 beta_t = DB('beta'); %% store the beta array in accumulo table 'beta'
 parallel_sax_alpha_output = DB('alpha_sax_temp'); % delete temp tables in main note2
 parallel_sax_beta_output = DB('beta_sax_temp');   % delete temp tables in main note2
-norm_v_temp = DB('lz_norm_v_temp');
-norm_b_temp = DB('lz_norm_B_temp');
+norm_v_temp = DB(['lz_norm_v' num2str(NumOfNodes) '_temp']);
+norm_b_temp = DB(['lz_norm_B' num2str(NumOfNodes) '_temp']);
 so_rpath = DB('so_rpath');  %% selective orthogonalize intermidate output table
 cur_loop_j = DB('cur_loop_j'); %% so inside loop identifier j every process need to know this value to computeR
 rtv_temp = DB('rtv_temp'); %% so inside we need calculate the dotproduct of rtv, this table is used to save the temp result
 so_rrtv = DB('so_rrtv'); %% so to store the vector 'rrtv' which is used to update lz_vpath, lz_vpath = lz_vpath - so_rrtv;
-temp_lz_vpath = DB('lz_vpath');
+temp_lz_vpath = DB([num2str(NumOfNodes) 'lz_vpath']);
 temp_mv_temp=DB('mv_temp');
 temp_dot_temp=DB('dot_temp');
 
@@ -78,8 +79,8 @@ alpha_t = DB('alpha');
 beta_t = DB('beta');
 parallel_sax_alpha_output = DB('alpha_sax_temp');
 parallel_sax_beta_output = DB('beta_sax_temp');
-norm_v_temp = DB('lz_norm_v_temp');
-norm_b_temp = DB('lz_norm_B_temp');
+norm_v_temp = DB(['lz_norm_v' num2str(NumOfNodes) '_temp']);
+norm_b_temp = DB(['lz_norm_B' num2str(NumOfNodes) '_temp']);
 so_rpath = DB('so_rpath');
 cur_loop_j = DB('cur_loop_j');
 rtv_temp = DB('rtv_temp');
@@ -146,6 +147,7 @@ initB(NumOfMachines,NumOfProcessors, NumOfNodes,machines);
 %%Now start the for loop%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for it = 1:max_iteration
+	tic;
 	disp('**************myEigen iterations***********************');
 	disp(['computing v=Aq ' num2str(it) ' ...']);
 
@@ -260,7 +262,8 @@ for it = 1:max_iteration
 	compute_eigval(it, alpha, bet, eig_k);
 	disp('Saving the tridiagonal matrix');
 	save_tridiagonal_matrix(alpha, bet, it);
-    	
+    oneIterationTime=toc;
+    disp(['Iteration: ' num2str(it) 'total running time is !!! ' num2str(oneIterationTime) ' !!!']);
 
 end  %% end for loop
 	
@@ -272,8 +275,11 @@ end  %% end for loop
 	for n = 1:max_iteration
 	disp([num2str(n) sprintf('\t') num2str(alpha(n)) sprintf('\t\t') num2str(bet(n))]);
 	end
+	
 	alltime = toc;
 	disp(['Total running time is: ' num2str(alltime)]);
 
 	diary off;
+	disp(['Ending time: ' sprintf('\n')]);
+	datestr(now);
 end %end function

@@ -21,8 +21,7 @@
 %% Date: Nov,30,2014
 %% Usage: dotprodcut('test_dot1','test_dot2',3,2)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %% variables %%
+tic;
 
 myDB; %% connect to DB and return a binding named DB.
 machines_t = DB('NumOfMachines');
@@ -55,28 +54,31 @@ for i = myMachine
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node)]);
 
 	temp_sum = 0;
-
-	% fetch all rows of value from the v and vi 
- 	RowsOfV = v(sprintf('%d,',start_node:end_node),:);
-    RowsOfVi = vi(sprintf('%d,',start_node:end_node),:);
+    vAll = v(sprintf('%d,',start_node:end_node),:);
+    viAll = vi(sprintf('%d,',start_node:end_node),:);	
 
 for j = start_node:end_node  % j is the row_id for the vector! We need to multiply the element from the same row_id. 
-	
-	if(~isempty(Val(RowsOfV(sprintf('%d,',j),'1,'))))
-	x = str2num(Val(RowsOfV(sprintf('%d,',j),'1,')));
-	else 
-	x = 0;
-	end
-	if(~isempty(Val(RowsOfVi(sprintf('%d,',j),'1,'))))
-	y = str2num(Val(RowsOfVi(sprintf('%d,',j),'1,')));
-	else
-	y = 0;
-	end
-	temp_sum = temp_sum + x * y;
-	end 
 
+        if(~isempty(Val(vAll(sprintf('%d,',j),'1,'))))
+        x = str2num(Val(vAll(sprintf('%d,',j),'1,')));
+        else
+        x = 0;
+        end
+        if(~isempty(Val(viAll(sprintf('%d,',j),'1,'))))
+        y = str2num(Val(viAll(sprintf('%d,',j),'1,')));
+        else
+        y = 0;
+        end
+        temp_sum = temp_sum + x * y;
+ end
   newAssoc = Assoc(sprintf('%d,',i),'1,',sprintf('%.15f,',temp_sum));
   put(temp,newAssoc);
-end 
+end
+
+totalT=toc;
+disp(['Total Running time is: ' num2str(totalT)]);
+tic;
 agg(w);
+waitingT=toc;
+disp(['Total syn time is: ' num2str(waitingT)]);
 

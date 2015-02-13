@@ -12,7 +12,12 @@ final = 0;
 myDB;
 temp = DB('dot_temp');
 
-[tRow,tCol,tVal] = temp(sprintf('%d,',1:NumOfMachines),:); 
+machines_t = DB('NumOfMachines');
+NumOfMachines = str2num(Val(machines_t('1,','1,')));
+
+%% temp(:,sprintf('%d,',1:NumOfMachines)) will not return the things I need. 
+[tRow,tCol,tVal] = temp(sprintf('%d,',1:NumOfMachines),:); %% This range query works for rows not for cols so this is fine.
+
 if(~isempty(tVal))
 tVal = str2num(tVal);
 final = sum(tVal);

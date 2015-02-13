@@ -17,7 +17,7 @@ p_so_rrtv=DB('so_rrtv');
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 
-parallel_so_v = DB([num2str(NumOfNodes)'lz_vpath']);
+parallel_so_v = DB([num2str(NumOfNodes) 'lz_vpath']);
 %parallel_so_rrtv = DB('so_rrtv'); This cause the bug because parallel_so_rrtv is file name
 
 disp(['Calcuating lz_vpath = lz_vpath - so_rrtv' ]);

@@ -16,7 +16,7 @@ cur_it = DB('cur_it');
 it = str2num(Val(cur_it('1,','1,')));
 
 
-update_lz_vpath = DB([num2str(NumOfNodes)'lz_vpath']);
+update_lz_vpath = DB([num2str(NumOfNodes) 'lz_vpath']);
 update_q_beta_t = DB('beta');
 
 
@@ -24,7 +24,7 @@ NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
 
 
-update_q_output = DB([num2str(NumOfNodes)'lz_q' num2str(it+1)]);
+update_q_output = DB([num2str(NumOfNodes) 'lz_q' num2str(it+1)]);
 if(~isempty(update_q_beta_t(sprintf('%d,',it),'1,')))
 beta_it_v = str2num(Val(update_q_beta_t(sprintf('%d,',it),'1,')));
 beta_it_v = 1./beta_it_v;
@@ -43,7 +43,7 @@ gap = floor(NumOfNodes / NumOfMachines);
 	end_node = NumOfNodes ;
 	end
 	disp(['start index: ' num2str(start_node) ' end index: ' num2str(end_node)]);
-	disp(['Iteration ' num2str(it) ' beta ' num2str(beta_it_v) ' times lz_vpath' ]);
+	disp(['Iteration ' num2str(it) ' beta ' num2str(beta_it_v) ' times' num2str(NumOfNodes) 'lz_vpath' ]);
 	%% Below for loop will make sure the 0 values will be written to the table,
 	% We need fill with 0s to make sure our query will return the same sequence of value to calculate v = v- sax_alpha_temp - sax_beta_temp
 		valVector = [];

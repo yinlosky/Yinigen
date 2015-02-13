@@ -53,14 +53,15 @@ for i = myMachine
 	     else
 	      mysum = 0;
 	     end
-		  rowStr = sprintf('%d,',str2num(JR));
-	      colStr = sprintf('%d,',str2num(JC));
+		  rowStr = sprintf('%d,',j);
+	      colStr = '1,';
 	      valStr = sprintf('%.15f,',mysum);
 	      ArowStr = strcat(ArowStr,rowStr);
 	      AcolStr = strcat(AcolStr,colStr);
 	      AvalStr = strcat(AvalStr,valStr);
     end
-    	put(output,Assoc(rowStr,colStr,valStr));
+    	
+    	put(output,Assoc(ArowStr,AcolStr,AvalStr));
 end
 agg(w);
 	

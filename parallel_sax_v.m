@@ -19,7 +19,7 @@ cur_it = DB('cur_it');
 
 parallel_sax_v_alpha_t = DB('alpha_sax_temp');
 parallel_sax_v_beta_t = DB('beta_sax_temp');
-parallel_sax_v_t = DB([num2str(NumOfNodes)'lz_vpath']);
+parallel_sax_v_t = DB([num2str(NumOfNodes) 'lz_vpath']);
 
 NumOfMachines = str2num(Val(machines_t('1,','1,')));
 NumOfNodes = str2num(Val(nodes_t('1,','1,')));
@@ -42,12 +42,12 @@ disp(['Calcuating lz_vpath = lz_vpath - beta_sax_temp - alpha_sax_temp' ]);
         valVector=[];
 		for j = start_node:end_node  
 		 
-              if(~isempty(parallel_sax_v_t(sprintf('%d,',j),'1,')))     		
+              if(~isempty(Val(parallel_sax_v_t(sprintf('%d,',j),'1,'))))    		
      			vv = str2num(Val(parallel_sax_v_t(sprintf('%d,',j),'1,')));
 			  else
 				vv = 0;
 			  end
-				if(~isempty(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')))
+				if(~isempty(Val(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,'))))
 					valpha = str2num(Val(parallel_sax_v_alpha_t(sprintf('%d,',j),'1,')));
 				else
 					valpha = 0;
@@ -55,7 +55,7 @@ disp(['Calcuating lz_vpath = lz_vpath - beta_sax_temp - alpha_sax_temp' ]);
 				if (it == 1)
 					vbeta = 0;
 				  else
-				  if(~isempty(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')))
+				  if(~isempty(Val(parallel_sax_v_beta_t(sprintf('%d,',j),'1,'))))
 				  vbeta = str2num(Val(parallel_sax_v_beta_t(sprintf('%d,',j),'1,')));
 				  else vbeta = 0;
 			 	  end

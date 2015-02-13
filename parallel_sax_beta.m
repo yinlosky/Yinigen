@@ -27,7 +27,7 @@ parallel_sax_beta_v_t = DB(vector);  %% v_i-1
 % Only calculate when it is not 1 because it is 0, otherwise there is no 0 situation
 
    	[betaRow,betaCol,betaVal]=parallel_sax_beta_beta_t(sprintf('%d,',it-1),:); 
-   	if(~isempty(betaVal)
+   	if(~isempty(betaVal))
 		parallel_sax_beta_value = str2num(betaVal);
     else
     	parallel_sax_beta_value = 0;

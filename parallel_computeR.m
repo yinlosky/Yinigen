@@ -54,7 +54,7 @@ end
 
 
 %%%%%%%%%%%%%%Below is to get the matrix from lz_q{1:row}
-v_prefix = ([num2str(NumOfNodes)'lz_q']);   %% v_prefix is lz_q to retrieve the tables named from lz_q{1:row}
+v_prefix = ([num2str(NumOfNodes) 'lz_q']);   %% v_prefix is lz_q to retrieve the tables named from lz_q{1:row}
 table_names = cell(row,1);
 for i = 1:row
 	table_names{i} = [v_prefix num2str(i)];
